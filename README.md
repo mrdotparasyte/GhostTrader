@@ -23,8 +23,10 @@ test/trade:
 	@forge script $(SCRIPT_PATH) --sig 'testInverseTrade()' --rpc-url=$(TESTNET_RPC_URL)  --broadcast
 ```
 
-## Env
+## Prerequisites
 
+
+### Env
 ```
 PRIVATE_KEY=
 ADDRESS_EOA=
@@ -42,6 +44,16 @@ cp .env.example .env
 ```
 
 Then set the `PRIVATE_KEY`, `TOKEN_QUOTE`, `TOKEN_BASE` and `ADDRESS_EOA`
+
+### Installation
+
+[Install foundry](https://book.getfoundry.sh/getting-started/installation#installation)
+
+```
+curl -L https://foundry.paradigm.xyz | bash
+forge install
+forge build
+```
 
 ## Test
 

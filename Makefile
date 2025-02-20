@@ -1,3 +1,7 @@
+prepare:
+	@curl -L https://foundry.paradigm.xyz | bash
+	@forge install
+	@forge build
 
 RPC_URL ?= https://rpc.ankr.com/bsc
 SCRIPT_PATH ?= script/GhostTrader.s.sol
