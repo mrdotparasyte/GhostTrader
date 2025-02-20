@@ -51,8 +51,8 @@ Then set the `PRIVATE_KEY`, `TOKEN_QUOTE`, `TOKEN_BASE` and `ADDRESS_EOA`
 
 ```
 curl -L https://foundry.paradigm.xyz | bash
-forge install
-forge build
+forge install https://github.com/OpenZeppelin/openzeppelin-contracts
+forge install https://github.com/foundry-rs/forge-std
 ```
 
 ## Test
