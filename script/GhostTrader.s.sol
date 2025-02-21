@@ -49,7 +49,7 @@ contract GhostTraderScript is Script {
 
         GhostTrader trader = GhostTrader(ghostTrader);
         ExactInputSingleParams[] memory orders = new ExactInputSingleParams[](
-            1
+            2
         );
         // v3 pool with 1% fee
         orders[0] = ExactInputSingleParams({
