@@ -43,6 +43,41 @@ contract GhostTraderScript is Script {
         vm.stopBroadcast();
     }
 
+    // bundle trade with multiple v3 pools
+    function testMultiPoolsTrade() public {
+        vm.startBroadcast(pk);
+
+        GhostTrader trader = GhostTrader(ghostTrader);
+        ExactInputSingleParams[] memory orders = new ExactInputSingleParams[](
+            1
+        );
+        // v3 pool with 1% fee
+        orders[0] = ExactInputSingleParams({
+            tokenIn: wbnb,
+            tokenOut: testToken,
+            fee: 10000,
+            recipient: ghostTrader,
+            deadline: block.timestamp + 3600,
+            amountIn: 1e15,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
+        // v3 pool with 0.01% fee
+        orders[1] = ExactInputSingleParams({
+            tokenIn: wbnb,
+            tokenOut: testToken,
+            fee: 100,
+            recipient: ghostTrader,
+            deadline: block.timestamp + 3600,
+            amountIn: 1e15,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
+
+        trader.bundleTrade(orders);
+        vm.stopBroadcast();
+    }
+
     // bundle trade
     function testBundleTrade() public {
         vm.startBroadcast(pk);
