@@ -22,7 +22,9 @@ contract GhostTraderScript is Script {
 
     function deploy() public {
         vm.startBroadcast(pk);
-        GhostTrader trader = new GhostTrader(pancakeRouter);
+        address[] memory admins = new address[](1);
+        admins[0] = eoaAddress;
+        GhostTrader trader = new GhostTrader(pancakeRouter, eoaAddress, admins);
         console2.log("GhostTrader deployed at:", address(trader));
         vm.stopBroadcast();
     }

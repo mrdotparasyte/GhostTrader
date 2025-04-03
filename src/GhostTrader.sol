@@ -4,12 +4,30 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract GhostTrader is Ownable {
     ISwapRouter swapRouter;
+    mapping(address => bool) admins;
 
-    constructor(address router) Ownable(msg.sender) {
-        swapRouter = ISwapRouter(router);
+    modifier onlyOwnerOrAdmin() {
+        _;
+        require(
+            msg.sender == owner() || admins[msg.sender] == true,
+            "Only the owner or admin can execute this."
+        );
     }
 
-    function bundleTrade(ExactInputSingleParams[] memory orders) external {
+    constructor(
+        address _router,
+        address _owner,
+        address[] memory _admins
+    ) Ownable(_owner) {
+        swapRouter = ISwapRouter(_router);
+        for (uint8 i = 0; i < _admins.length; i++) {
+            admins[_admins[i]] = true;
+        }
+    }
+
+    function bundleTrade(
+        ExactInputSingleParams[] memory orders
+    ) external onlyOwnerOrAdmin {
         require(
             orders.length <= type(uint8).max,
             "The number of orders exceeds the maximum allowed"
@@ -19,7 +37,9 @@ contract GhostTrader is Ownable {
         }
     }
 
-    function inverseTrade(ExactInputSingleParams memory order) external {
+    function inverseTrade(
+        ExactInputSingleParams memory order
+    ) external onlyOwnerOrAdmin {
         uint256 amountOut = swapRouter.exactInputSingle(order);
         swapRouter.exactInputSingle(
             ExactInputSingleParams({
@@ -33,6 +53,14 @@ contract GhostTrader is Ownable {
                 sqrtPriceLimitX96: 0
             })
         );
+    }
+
+    function addAdmin(address admin) external onlyOwnerOrAdmin {
+        admins[admin] = true;
+    }
+
+    function removeAdmin(address admin) external onlyOwnerOrAdmin {
+        admins[admin] = false;
     }
 
     function approve(
