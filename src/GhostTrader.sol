@@ -6,6 +6,8 @@ contract GhostTrader is Ownable {
     ISwapRouter swapRouter;
     mapping(address => bool) admins;
 
+    event Received(address sender, uint256 amount);
+
     modifier onlyOwnerOrAdmin() {
         _;
         require(
@@ -25,12 +27,47 @@ contract GhostTrader is Ownable {
         }
     }
 
-    function bundleTrade(
+    function autoSell(
         ExactInputSingleParams[] memory orders
     ) external onlyOwnerOrAdmin {
         require(
-            orders.length <= type(uint8).max,
-            "The number of orders exceeds the maximum allowed"
+            orders.length > 0 && orders.length <= type(uint8).max,
+            "Invalid length"
+        );
+        uint256 totalAmountOut = 0;
+        for (uint8 i = 0; i < orders.length; i++) {
+            totalAmountOut += swapRouter.exactInputSingle(orders[i]);
+        }
+        ExactInputSingleParams memory order = orders[0];
+        uint sellingLen = random(1, 3);
+        ExactInputSingleParams[]
+            memory sellingOrders = new ExactInputSingleParams[](sellingLen);
+        uint256 remainAmount = totalAmountOut;
+        for (uint8 i = 0; i < sellingOrders.length; i++) {
+            uint256 amountIn = i == sellingLen - 1
+                ? remainAmount
+                : random(remainAmount / 10, remainAmount);
+            remainAmount -= amountIn;
+            sellingOrders[i] = ExactInputSingleParams({
+                tokenIn: order.tokenOut,
+                tokenOut: order.tokenIn,
+                fee: order.fee,
+                recipient: order.recipient,
+                deadline: order.deadline,
+                amountIn: amountIn,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
+        }
+        bundleTrade(sellingOrders);
+    }
+
+    function bundleTrade(
+        ExactInputSingleParams[] memory orders
+    ) public onlyOwnerOrAdmin {
+        require(
+            orders.length > 0 && orders.length <= type(uint8).max,
+            "Invalid length"
         );
         for (uint8 i = 0; i < orders.length; i++) {
             swapRouter.exactInputSingle(orders[i]);
@@ -78,6 +115,29 @@ contract GhostTrader is Ownable {
     function withdrawERC20(address token, address recipient) public onlyOwner {
         IERC20 erc20 = IERC20(token);
         erc20.transfer(recipient, erc20.balanceOf(address(this)));
+    }
+
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
+    }
+
+    fallback() external payable {
+        emit Received(msg.sender, msg.value);
+    }
+
+    function random(
+        uint minNumber,
+        uint maxNumber
+    ) public view returns (uint amount) {
+        amount =
+            uint(
+                keccak256(
+                    abi.encodePacked(block.timestamp, msg.sender, block.number)
+                )
+            ) %
+            (maxNumber - minNumber);
+        amount = amount + minNumber;
+        return amount;
     }
 }
 

@@ -31,17 +31,24 @@ contract GhostTraderScript is Script {
 
     function approveAll() public {
         vm.startBroadcast(pk);
-        GhostTrader trader = GhostTrader(ghostTrader);
+        GhostTrader trader = GhostTrader(payable(ghostTrader));
         trader.approve(wbnb, pancakeRouter, type(uint256).max);
         trader.approve(testToken, pancakeRouter, type(uint256).max);
         vm.stopBroadcast();
     }
 
     // !!! withdraw to EOA
-    function withdrawWBNB() public {
+    function withdrawETH() public {
         vm.startBroadcast(pk);
-        // GhostTrader trader = GhostTrader(ghostTrader);
-        // trader.withdrawERC20(wbnb, eoaAddress);
+        GhostTrader trader = GhostTrader(payable(ghostTrader));
+        trader.withdrawETH(eoaAddress);
+        vm.stopBroadcast();
+    }
+
+    function withdrawErc20() public {
+        vm.startBroadcast(pk);
+        GhostTrader trader = GhostTrader(payable(ghostTrader));
+        trader.withdrawERC20(wbnb, eoaAddress);
         vm.stopBroadcast();
     }
 
@@ -49,7 +56,7 @@ contract GhostTraderScript is Script {
     function testMultiPoolsTrade() public {
         vm.startBroadcast(pk);
 
-        GhostTrader trader = GhostTrader(ghostTrader);
+        GhostTrader trader = GhostTrader(payable(ghostTrader));
         ExactInputSingleParams[] memory orders = new ExactInputSingleParams[](
             2
         );
@@ -84,7 +91,7 @@ contract GhostTraderScript is Script {
     function testBundleTrade() public {
         vm.startBroadcast(pk);
 
-        GhostTrader trader = GhostTrader(ghostTrader);
+        GhostTrader trader = GhostTrader(payable(ghostTrader));
         ExactInputSingleParams[] memory orders = new ExactInputSingleParams[](
             1
         );
@@ -103,11 +110,32 @@ contract GhostTraderScript is Script {
         vm.stopBroadcast();
     }
 
+    function testAutoSell() public {
+        vm.startBroadcast(pk);
+        GhostTrader trader = GhostTrader(payable(ghostTrader));
+        ExactInputSingleParams[] memory orders = new ExactInputSingleParams[](
+            1
+        );
+        orders[0] = ExactInputSingleParams({
+            tokenIn: wbnb,
+            tokenOut: testToken,
+            fee: 10000,
+            recipient: ghostTrader,
+            deadline: block.timestamp + 3600,
+            amountIn: 1e15,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
+
+        trader.autoSell(orders);
+        vm.stopBroadcast();
+    }
+
     // inverse trade
     function testInverseTrade() public {
         vm.startBroadcast(pk);
 
-        GhostTrader trader = GhostTrader(ghostTrader);
+        GhostTrader trader = GhostTrader(payable(ghostTrader));
         ExactInputSingleParams[] memory orders = new ExactInputSingleParams[](
             1
         );

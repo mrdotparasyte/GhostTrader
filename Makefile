@@ -20,5 +20,8 @@ test/approve:
 	@forge script $(SCRIPT_PATH) --sig 'approveAll()' --rpc-url=$(TESTNET_RPC_URL) --broadcast
 
 test/trade:
-	@forge script $(SCRIPT_PATH) --sig 'testBundleTrade()' --rpc-url=$(TESTNET_RPC_URL)  --broadcast
-	@forge script $(SCRIPT_PATH) --sig 'testInverseTrade()' --rpc-url=$(TESTNET_RPC_URL)  --broadcast
+	@forge script $(SCRIPT_PATH) --sig 'testAutoSell()' --rpc-url=$(TESTNET_RPC_URL)  --broadcast
+
+test/withdraw:
+	@forge script $(SCRIPT_PATH) --sig 'withdrawETH()' --rpc-url=$(TESTNET_RPC_URL)  --broadcast
+	@forge script $(SCRIPT_PATH) --sig 'withdrawErc20()' --rpc-url=$(TESTNET_RPC_URL)  --broadcast
