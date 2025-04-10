@@ -1,7 +1,9 @@
-prepare:
+install:
 	@curl -L https://foundry.paradigm.xyz | bash
 	@forge install https://github.com/OpenZeppelin/openzeppelin-contracts
 	@forge install https://github.com/foundry-rs/forge-std
+
+build:
 	@forge build
 
 RPC_URL ?= https://rpc.ankr.com/bsc
