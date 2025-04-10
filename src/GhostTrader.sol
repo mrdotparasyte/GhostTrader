@@ -3,6 +3,11 @@ pragma solidity ^0.8.20;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract GhostTrader is Ownable {
+    struct Config {
+        uint8 minOrders;
+        uint8 maxOrders;
+    }
+    Config config;
     ISwapRouter swapRouter;
     mapping(address => bool) admins;
 
@@ -22,6 +27,7 @@ contract GhostTrader is Ownable {
         address[] memory _admins
     ) Ownable(_owner) {
         swapRouter = ISwapRouter(_router);
+        config = Config({minOrders: 1, maxOrders: 3});
         for (uint8 i = 0; i < _admins.length; i++) {
             admins[_admins[i]] = true;
         }
@@ -39,7 +45,7 @@ contract GhostTrader is Ownable {
             totalAmountOut += swapRouter.exactInputSingle(orders[i]);
         }
         ExactInputSingleParams memory order = orders[0];
-        uint sellingLen = random(1, 3);
+        uint sellingLen = random(config.minOrders, config.maxOrders);
         ExactInputSingleParams[]
             memory sellingOrders = new ExactInputSingleParams[](sellingLen);
         uint256 remainAmount = totalAmountOut;
@@ -98,6 +104,10 @@ contract GhostTrader is Ownable {
 
     function removeAdmin(address admin) external onlyOwnerOrAdmin {
         admins[admin] = false;
+    }
+
+    function updateConfig(Config memory newConfig) external onlyOwnerOrAdmin {
+        config = newConfig;
     }
 
     function approve(
